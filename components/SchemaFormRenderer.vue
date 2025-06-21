@@ -37,17 +37,7 @@ try {
 
 const fields = computed(() => {
   if (!parsedSchema.value) return []
-  return Object.entries(parsedSchema.value.properties).map(([key, value]) => {
-    const field = value as JSONSchema7
-    return {
-      key,
-      label: field.title || key,
-      type: field.type,
-      enum: field.enum,
-      format: field.format,
-      required: parsedSchema.value?.required?.includes(key)
-    }
-  })
+  return useSchemaForm(parsedSchema.value)
 })
 
 function onSubmit() {
@@ -57,7 +47,7 @@ function onSubmit() {
 
 <template>
   <div>
-    <UForm @submit.prevent="onSubmit">
+    <UForm :state="localData" @submit.prevent="onSubmit">
       <div v-for="field in fields" :key="field.key" class="space-y-2">
         <label class="font-bold">{{ field.label }} <span v-if="field.required" class="text-red-500">*</span></label>
 
@@ -79,7 +69,7 @@ function onSubmit() {
           v-model="localData[field.key]"
         />
 
-        <UToggle
+        <UCheckbox
           v-else-if="field.type === 'boolean'"
           v-model="localData[field.key]"
         />

@@ -5,7 +5,7 @@ export interface FormField {
   key: string
   label: string
   type: JSONSchema7TypeName | undefined
-  component: 'UInput' | 'USelect' | 'UNumberInput' | 'UToggle' | 'Unsupported'
+  component: 'UInput' | 'USelect' | 'UNumberInput' | 'UCheckbox' | 'Unsupported'
   enum?: any[]
   required?: boolean
   format?: string
@@ -37,7 +37,7 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
     } else if (base.type === 'number' || base.type === 'integer') {
       base.component = 'UNumberInput'
     } else if (base.type === 'boolean') {
-      base.component = 'UToggle'
+      base.component = 'UCheckbox'
     }
 
     return base

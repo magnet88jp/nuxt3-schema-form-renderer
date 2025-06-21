@@ -37,7 +37,7 @@ function handleSubmit(data: Record<string, any>) {
   <div class="p-6 space-y-6">
     <UCard>
       <template #header>JSON Schema 入力</template>
-      <UTextarea v-model="schemaText" class="w-full" rows="12" />
+      <UTextarea v-model="schemaText" class="w-full" :rows="12" />
     </UCard>
 
     <UCard>
