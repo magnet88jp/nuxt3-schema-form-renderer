@@ -19,13 +19,25 @@ const error = ref<string>('')
 const fieldErrors = ref<Record<string, string>>({})
 const parsedSchema = ref<JSONSchema7 | null>(null)
 
-watch(() => props.modelValue, (val) => {
-  localData.value = { ...val }
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (JSON.stringify(val) !== JSON.stringify(localData.value)) {
+      localData.value = { ...val }
+    }
+  },
+  { deep: true }
+)
 
-watch(() => localData.value, (val) => {
-  emit('update:modelValue', val)
-}, { deep: true })
+watch(
+  () => localData.value,
+  (val) => {
+    if (JSON.stringify(val) !== JSON.stringify(props.modelValue)) {
+      emit('update:modelValue', val)
+    }
+  },
+  { deep: true }
+)
 
 try {
   parsedSchema.value = typeof props.schema === 'string' ? JSON.parse(props.schema) : props.schema
@@ -140,6 +152,29 @@ function onSubmit() {
           v-model="localData[field.key]"
           @change="validateSingleField(field)"
         />
+
+        <UPopover v-else-if="field.component === 'UCalendarPopover'">
+          <UButtonGroup class="w-full">
+            <UInput
+              :model-value="localData[field.key]"
+              readonly
+              :placeholder="field.label"
+              class="flex-1"
+            />
+            <UButton icon="i-heroicons-calendar" />
+          </UButtonGroup>
+          <template #content>
+            <UCalendar
+              @update:model-value="(val) => {
+                const ymd = `${val.year}-${String(val.month).padStart(2, '0')}-${String(val.day).padStart(2, '0')}`
+                if (localData[field.key] !== ymd) {
+                  localData[field.key] = ymd
+                  validateSingleField(field)
+                }
+              }"
+            />
+          </template>
+        </UPopover>
 
         <div v-else class="text-gray-500 italic">未対応の型: {{ field.type }}</div>
 
