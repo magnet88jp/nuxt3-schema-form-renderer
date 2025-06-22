@@ -40,7 +40,29 @@ const fields = computed(() => {
   return useSchemaForm(parsedSchema.value)
 })
 
+const validateField = (field: any, value: any) => {
+  if (field.required && (value === undefined || value === null || value === '')) {
+    return `${field.label} は必須です`
+  }
+  return ''
+}
+
+const validate = () => {
+  const errors: Record<string, string> = {}
+  for (const field of fields.value) {
+    const err = validateField(field, localData.value[field.key])
+    if (err) errors[field.key] = err
+  }
+  return Object.keys(errors).length === 0 ? null : errors
+}
+
 function onSubmit() {
+  const errors = validate()
+  if (errors) {
+    error.value = Object.values(errors).join('\n')
+    return
+  }
+  error.value = ''
   emit('submit', localData.value)
 }
 </script>
@@ -81,7 +103,7 @@ function onSubmit() {
     </UForm>
 
     <pre v-if="debug" class="mt-4 bg-gray-100 p-2 text-sm">{{ localData }}</pre>
-    <div v-if="error" class="text-red-500 mt-2">{{ error }}</div>
+    <div v-if="error" class="text-red-500 mt-2 whitespace-pre-line">{{ error }}</div>
   </div>
 </template>
 
