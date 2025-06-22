@@ -6,7 +6,7 @@ export interface FormField {
   label: string
   type: JSONSchema7TypeName | undefined
   component: 'UInput' | 'USelect' | 'UNumberInput' | 'UCheckbox' | 'UCalendarPopover' | 'Unsupported'
-  enum?: any[]
+  enum?: { label: string; value: any }[]
   required?: boolean
   format?: string
   minLength?: number
@@ -14,7 +14,7 @@ export interface FormField {
   pattern?: string
   minimum?: number
   maximum?: number
-  transform?: (value: any) => any
+  // transform フィールドを削除（関数型プロパティが無限ループの原因となるため）
 }
 
 export function useSchemaForm(schema: JSONSchema7): FormField[] {
@@ -31,7 +31,7 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
       type: typeof field.type === 'string' ? field.type : undefined,
       format: field.format,
       required: schema.required?.includes(key) || false,
-      enum: field.enum,
+      enum: undefined,
       minLength: field.minLength,
       maxLength: field.maxLength,
       pattern: field.pattern,
@@ -40,15 +40,14 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
       component: 'Unsupported'
     }
 
-    if (base.enum && Array.isArray(base.enum)) {
+    if (field.enum && Array.isArray(field.enum)) {
       base.component = 'USelect'
-      base.enum = base.enum.map((val) => ({
+      base.enum = field.enum.map((val) => ({
         label: String(val),
         value: val
       }))
-    } else if (base.format === 'date') {
+    } else if (field.format === 'date') {
       base.component = 'UCalendarPopover'
-      base.transform = (val: any) => `${val.year}-${String(val.month).padStart(2, '0')}-${String(val.day).padStart(2, '0')}`
     } else if (base.type === 'string') {
       base.component = 'UInput'
     } else if (base.type === 'number' || base.type === 'integer') {
@@ -59,4 +58,4 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
 
     return base
   })
-}
+} 

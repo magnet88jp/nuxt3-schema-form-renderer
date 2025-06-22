@@ -19,13 +19,25 @@ const error = ref<string>('')
 const fieldErrors = ref<Record<string, string>>({})
 const parsedSchema = ref<JSONSchema7 | null>(null)
 
-watch(() => props.modelValue, (val) => {
-  localData.value = { ...val }
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (JSON.stringify(val) !== JSON.stringify(localData.value)) {
+      localData.value = { ...val }
+    }
+  },
+  { deep: true }
+)
 
-watch(() => localData.value, (val) => {
-  emit('update:modelValue', val)
-}, { deep: true })
+watch(
+  () => localData.value,
+  (val) => {
+    if (JSON.stringify(val) !== JSON.stringify(props.modelValue)) {
+      emit('update:modelValue', val)
+    }
+  },
+  { deep: true }
+)
 
 try {
   parsedSchema.value = typeof props.schema === 'string' ? JSON.parse(props.schema) : props.schema
@@ -155,8 +167,10 @@ function onSubmit() {
             <UCalendar
               @update:model-value="(val) => {
                 const ymd = `${val.year}-${String(val.month).padStart(2, '0')}-${String(val.day).padStart(2, '0')}`
-                localData[field.key] = ymd
-                validateSingleField(field)
+                if (localData[field.key] !== ymd) {
+                  localData[field.key] = ymd
+                  validateSingleField(field)
+                }
               }"
             />
           </template>
