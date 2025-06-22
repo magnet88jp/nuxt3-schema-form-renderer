@@ -47,6 +47,7 @@ function onSubmit() {
 
 <template>
   <div>
+    <pre class="bg-gray-100 p-2 text-xs">{{ fields }}</pre>
     <UForm :state="localData" @submit.prevent="onSubmit">
       <div v-for="field in fields" :key="field.key" class="space-y-2">
         <label class="font-bold">{{ field.label }} <span v-if="field.required" class="text-red-500">*</span></label>
@@ -60,7 +61,7 @@ function onSubmit() {
         <USelect
           v-else-if="field.enum && Array.isArray(field.enum)"
           v-model="localData[field.key]"
-          :options="field.enum"
+          :items="field.enum"
         />
 
         <UInput

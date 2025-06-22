@@ -32,6 +32,10 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
     // 推論によるコンポーネントの選択
     if (base.enum && Array.isArray(base.enum)) {
       base.component = 'USelect'
+      base.enum = base.enum.map((val) => ({
+        label: String(val),
+        value: val
+      }))
     } else if (base.type === 'string') {
       base.component = 'UInput'
     } else if (base.type === 'number' || base.type === 'integer') {
