@@ -5,25 +5,40 @@ import SchemaFormRenderer from '~/components/SchemaFormRenderer.vue'
 const schemaText = ref(`{
   "type": "object",
   "properties": {
-    "name": {
+    "username": {
       "type": "string",
-      "title": "名前"
+      "title": "ユーザー名",
+      "minLength": 3,
+      "maxLength": 15,
+      "pattern": "^[a-zA-Z0-9_]+$"
     },
-    "age": {
-      "type": "number",
-      "title": "年齢"
+    "email": {
+      "type": "string",
+      "title": "メールアドレス",
+      "format": "email"
     },
     "gender": {
       "type": "string",
       "title": "性別",
       "enum": ["男性", "女性", "その他"]
     },
-    "isAdmin": {
+    "birthDate": {
+      "type": "string",
+      "title": "誕生日",
+      "format": "date"
+    },
+    "age": {
+      "type": "number",
+      "title": "年齢",
+      "minimum": 18,
+      "maximum": 100
+    },
+    "isSubscribed": {
       "type": "boolean",
-      "title": "管理者"
+      "title": "ニュースレター購読"
     }
   },
-  "required": ["name", "gender"]
+  "required": ["username", "email", "birthDate", "age"]
 }`)
 
 const formData = ref({})
