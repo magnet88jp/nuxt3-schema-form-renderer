@@ -88,6 +88,15 @@ const validate = () => {
   return Object.keys(errors).length === 0 ? null : errors
 }
 
+function validateSingleField(field: any) {
+  const errorMessage = validateField(field, localData.value[field.key])
+  if (errorMessage) {
+    fieldErrors.value[field.key] = errorMessage
+  } else {
+    delete fieldErrors.value[field.key]
+  }
+}
+
 function onSubmit() {
   const errors = validate()
   if (errors) {
@@ -109,23 +118,27 @@ function onSubmit() {
           v-if="field.component === 'UInput'"
           v-model="localData[field.key]"
           :placeholder="field.label"
+          @blur="validateSingleField(field)"
         />
 
         <USelect
           v-else-if="field.component === 'USelect'"
           v-model="localData[field.key]"
           :items="field.enum"
+          @blur="validateSingleField(field)"
         />
 
         <UInput
           v-else-if="field.component === 'UNumberInput'"
           type="number"
           v-model="localData[field.key]"
+          @blur="validateSingleField(field)"
         />
 
         <UCheckbox
           v-else-if="field.component === 'UCheckbox'"
           v-model="localData[field.key]"
+          @change="validateSingleField(field)"
         />
 
         <div v-else class="text-gray-500 italic">未対応の型: {{ field.type }}</div>
