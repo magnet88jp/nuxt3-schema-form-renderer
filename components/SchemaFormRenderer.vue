@@ -44,6 +44,21 @@ const validateField = (field: any, value: any) => {
   if (field.required && (value === undefined || value === null || value === '')) {
     return `${field.label} は必須です`
   }
+  if (field.minLength && typeof value === 'string' && value.length < field.minLength) {
+    return `${field.label} は ${field.minLength}文字以上で入力してください`
+  }
+  if (field.pattern && typeof value === 'string') {
+    const regex = new RegExp(field.pattern)
+    if (!regex.test(value)) {
+      return `${field.label} の形式が正しくありません`
+    }
+  }
+  if (field.format === 'email' && typeof value === 'string') {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(value)) {
+      return `${field.label} は有効なメールアドレスを入力してください`
+    }
+  }
   return ''
 }
 
