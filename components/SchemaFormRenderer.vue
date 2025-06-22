@@ -16,6 +16,7 @@ const emit = defineEmits(['update:modelValue', 'submit'])
 
 const localData = ref<Record<string, any>>({ ...props.modelValue })
 const error = ref<string>('')
+const fieldErrors = ref<Record<string, string>>({})
 const parsedSchema = ref<JSONSchema7 | null>(null)
 
 watch(() => props.modelValue, (val) => {
@@ -83,13 +84,14 @@ const validate = () => {
     const err = validateField(field, localData.value[field.key])
     if (err) errors[field.key] = err
   }
+  fieldErrors.value = errors
   return Object.keys(errors).length === 0 ? null : errors
 }
 
 function onSubmit() {
   const errors = validate()
   if (errors) {
-    error.value = Object.values(errors).join('\n')
+    error.value = 'バリデーションエラーがあります'
     return
   }
   error.value = ''
@@ -127,6 +129,8 @@ function onSubmit() {
         />
 
         <div v-else class="text-gray-500 italic">未対応の型: {{ field.type }}</div>
+
+        <div v-if="fieldErrors[field.key]" class="text-red-500 text-sm">{{ fieldErrors[field.key] }}</div>
       </div>
 
       <UButton type="submit" class="mt-4">{{ submitLabel || '送信' }}</UButton>
