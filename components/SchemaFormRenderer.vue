@@ -141,12 +141,26 @@ function onSubmit() {
           @change="validateSingleField(field)"
         />
 
-        <UCalendar
-          v-else-if="field.component === 'UCalendar'"
-          v-model="localData[field.key]"
-          @close="validateSingleField(field)"
-          class="max-w-xs"
-        />
+        <UPopover v-else-if="field.component === 'UCalendarPopover'">
+          <UButtonGroup class="w-full">
+            <UInput
+              :model-value="localData[field.key]"
+              readonly
+              :placeholder="field.label"
+              class="flex-1"
+            />
+            <UButton icon="i-heroicons-calendar" />
+          </UButtonGroup>
+          <template #content>
+            <UCalendar
+              @update:model-value="(val) => {
+                const ymd = `${val.year}-${String(val.month).padStart(2, '0')}-${String(val.day).padStart(2, '0')}`
+                localData[field.key] = ymd
+                validateSingleField(field)
+              }"
+            />
+          </template>
+        </UPopover>
 
         <div v-else class="text-gray-500 italic">未対応の型: {{ field.type }}</div>
 
