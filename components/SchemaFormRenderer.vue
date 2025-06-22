@@ -47,6 +47,9 @@ const validateField = (field: any, value: any) => {
   if (field.minLength && typeof value === 'string' && value.length < field.minLength) {
     return `${field.label} は ${field.minLength}文字以上で入力してください`
   }
+  if (field.maxLength && typeof value === 'string' && value.length > field.maxLength) {
+    return `${field.label} は ${field.maxLength}文字以内で入力してください`
+  }
   if (field.pattern && typeof value === 'string') {
     const regex = new RegExp(field.pattern)
     if (!regex.test(value)) {
@@ -58,6 +61,18 @@ const validateField = (field: any, value: any) => {
     if (!emailRegex.test(value)) {
       return `${field.label} は有効なメールアドレスを入力してください`
     }
+  }
+  if (field.format === 'date' && typeof value === 'string') {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+    if (!dateRegex.test(value)) {
+      return `${field.label} は YYYY-MM-DD の形式で入力してください`
+    }
+  }
+  if (field.minimum !== undefined && typeof value === 'number' && value < field.minimum) {
+    return `${field.label} は ${field.minimum}以上の数値を入力してください`
+  }
+  if (field.maximum !== undefined && typeof value === 'number' && value > field.maximum) {
+    return `${field.label} は ${field.maximum}以下の数値を入力してください`
   }
   return ''
 }
