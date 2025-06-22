@@ -5,10 +5,15 @@ export interface FormField {
   key: string
   label: string
   type: JSONSchema7TypeName | undefined
-  component: 'UInput' | 'USelect' | 'UNumberInput' | 'UCheckbox' | 'Unsupported'
+  component: 'UInput' | 'USelect' | 'UNumberInput' | 'UCheckbox' | 'UCalendar' | 'Unsupported'
   enum?: any[]
   required?: boolean
   format?: string
+  minLength?: number
+  maxLength?: number
+  pattern?: string
+  minimum?: number
+  maximum?: number
 }
 
 export function useSchemaForm(schema: JSONSchema7): FormField[] {
@@ -26,16 +31,22 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
       format: field.format,
       required: schema.required?.includes(key) || false,
       enum: field.enum,
+      minLength: field.minLength,
+      maxLength: field.maxLength,
+      pattern: field.pattern,
+      minimum: field.minimum,
+      maximum: field.maximum,
       component: 'Unsupported'
     }
 
-    // 推論によるコンポーネントの選択
     if (base.enum && Array.isArray(base.enum)) {
       base.component = 'USelect'
       base.enum = base.enum.map((val) => ({
         label: String(val),
         value: val
       }))
+    } else if (base.format === 'date') {
+      base.component = 'UCalendar'
     } else if (base.type === 'string') {
       base.component = 'UInput'
     } else if (base.type === 'number' || base.type === 'integer') {
@@ -46,4 +57,4 @@ export function useSchemaForm(schema: JSONSchema7): FormField[] {
 
     return base
   })
-}
+} 

@@ -141,6 +141,13 @@ function onSubmit() {
           @change="validateSingleField(field)"
         />
 
+        <UCalendar
+          v-else-if="field.component === 'UCalendar'"
+          v-model="localData[field.key]"
+          @close="validateSingleField(field)"
+          class="max-w-xs"
+        />
+
         <div v-else class="text-gray-500 italic">未対応の型: {{ field.type }}</div>
 
         <div v-if="fieldErrors[field.key]" class="text-red-500 text-sm">{{ fieldErrors[field.key] }}</div>
