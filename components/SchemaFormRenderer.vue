@@ -1,4 +1,4 @@
-// SchemaFormRenderer.vue - JSON Schema Draft 7 対応バージョン
+<!-- components/SchemaFormRenderer.vue - JSON Schema Draft 7 対応 -->
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
@@ -40,38 +40,59 @@ const fields = computed(() => {
   return useSchemaForm(parsedSchema.value)
 })
 
+const validateField = (field: any, value: any) => {
+  if (field.required && (value === undefined || value === null || value === '')) {
+    return `${field.label} は必須です`
+  }
+  return ''
+}
+
+const validate = () => {
+  const errors: Record<string, string> = {}
+  for (const field of fields.value) {
+    const err = validateField(field, localData.value[field.key])
+    if (err) errors[field.key] = err
+  }
+  return Object.keys(errors).length === 0 ? null : errors
+}
+
 function onSubmit() {
+  const errors = validate()
+  if (errors) {
+    error.value = Object.values(errors).join('\n')
+    return
+  }
+  error.value = ''
   emit('submit', localData.value)
 }
 </script>
 
 <template>
   <div>
-    <pre class="bg-gray-100 p-2 text-xs">{{ fields }}</pre>
     <UForm :state="localData" @submit.prevent="onSubmit">
       <div v-for="field in fields" :key="field.key" class="space-y-2">
         <label class="font-bold">{{ field.label }} <span v-if="field.required" class="text-red-500">*</span></label>
 
         <UInput
-          v-if="field.type === 'string' && !field.enum"
+          v-if="field.component === 'UInput'"
           v-model="localData[field.key]"
           :placeholder="field.label"
         />
 
         <USelect
-          v-else-if="field.enum && Array.isArray(field.enum)"
+          v-else-if="field.component === 'USelect'"
           v-model="localData[field.key]"
           :items="field.enum"
         />
 
         <UInput
-          v-else-if="field.type === 'number' || field.type === 'integer'"
+          v-else-if="field.component === 'UNumberInput'"
           type="number"
           v-model="localData[field.key]"
         />
 
         <UCheckbox
-          v-else-if="field.type === 'boolean'"
+          v-else-if="field.component === 'UCheckbox'"
           v-model="localData[field.key]"
         />
 
@@ -82,8 +103,7 @@ function onSubmit() {
     </UForm>
 
     <pre v-if="debug" class="mt-4 bg-gray-100 p-2 text-sm">{{ localData }}</pre>
-
-    <div v-if="error" class="text-red-500 mt-2">{{ error }}</div>
+    <div v-if="error" class="text-red-500 mt-2 whitespace-pre-line">{{ error }}</div>
   </div>
 </template>
 
